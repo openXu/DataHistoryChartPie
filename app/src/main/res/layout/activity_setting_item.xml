@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="50dip"
+    android:gravity="center_vertical">
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textSize="@dimen/textSize"
+    android:text="名称:"/>
+    <EditText
+        android:id="@+id/et_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:inputType="numberSigned"
+        android:textSize="@dimen/textSize"
+        android:layout_marginLeft="10dip"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:textSize="@dimen/textSize"
+        android:text="占比:"/>
+<EditText
+    android:id="@+id/et_2"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:inputType="numberSigned"
+    android:textSize="@dimen/textSize"
+    android:layout_marginLeft="10dip"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:textSize="@dimen/textSize"
+        android:text="颜色:"/>
+    <EditText
+        android:id="@+id/et_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="@dimen/textSize"
+        android:layout_marginLeft="10dip"/>
+    <TextView
+        android:id="@+id/tv_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:textSize="@dimen/textSize"
+        android:textColor="#ff0000"
+        android:text="删除"/>
+</LinearLayout>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <com.hxjx.appliationplugin.lib.view.CustomLayout
+        android:id="@+id/custom"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dip"
+        android:background="@drawable/shape">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#0070C0"
+            android:textSize="14sp"
+            android:text="2016年度房屋销售统计表"/>
+        
+        <com.hxjx.appliationplugin.lib.view.PieChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.hxjx.appliationplugin.lib.view.SbChart
+            android:id="@+id/sbChart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#a1a2a0"/>
+        
+    </com.hxjx.appliationplugin.lib.view.CustomLayout>
+</LinearLayout>
+
+
+
