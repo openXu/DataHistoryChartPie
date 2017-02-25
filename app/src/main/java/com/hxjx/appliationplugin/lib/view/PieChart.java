@@ -14,10 +14,13 @@ import android.view.View;
 
 import com.hxjx.appliationplugin.lib.bean.PieDataEntity;
 import com.hxjx.appliationplugin.lib.util.CalculateUtil;
+import com.hxjx.appliationplugin.lib.util.Constant;
 import com.hxjx.appliationplugin.lib.util.DensityUtil;
 import com.hxjx.appliationplugin.lib.util.GlFontUtil;
 
 import java.util.ArrayList;
+
+import javax.microedition.khronos.opengles.GL;
 
 public class PieChart extends View {
 
@@ -26,11 +29,15 @@ public class PieChart extends View {
     private int mTotalWidth, mTotalHeight;
     /**绘制区域的半径*/
     private float mRadius;
-    private float outLineW, textOutSpac, textInnerSpac;
+    private float outLineW = 10;        //外侧线长
+    private float textOutSpac = 2;     //外侧字与线得距离
+    private float textInnerSpac = 15;   //内侧字与边得距离
+    private float maxTextL;             //最长得字长度
+    private float textLead, textH;             //最长得字长度
+
 
     private Paint mPaint, mLinePaint,mTextPaint;
 
-    private Path mPath;
     /**扇形的绘制区域*/
     private RectF mRectF;
 
@@ -83,11 +90,12 @@ public class PieChart extends View {
         mTextPaint.setStyle(Paint.Style.FILL);
         mTextPaint.setTextSize(13);
 
-        outLineW = DensityUtil.dip2px(context, 15);
-        textOutSpac = DensityUtil.dip2px(context, 20);
-        textInnerSpac = DensityUtil.dip2px(context, 18);
-
-        mPath = new Path();
+        outLineW = DensityUtil.dip2px(context, outLineW);
+        textOutSpac = DensityUtil.dip2px(context, textOutSpac);
+        textInnerSpac = DensityUtil.dip2px(context, textInnerSpac);
+        maxTextL = GlFontUtil.getFontlength(mTextPaint, "00.0%");
+        textLead = GlFontUtil.getFontLeading(mTextPaint);
+        textH = GlFontUtil.getFontHeight(mTextPaint);
     }
 
 
@@ -96,14 +104,9 @@ public class PieChart extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         mTotalWidth = w - getPaddingLeft() - getPaddingRight();
         mTotalHeight = h - getPaddingTop() - getPaddingBottom();
-    }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        //外围空间，用语标记占比
-        float outSpec = outLineW*1.6f+textOutSpac;
+        //外围空间，标记占比
+        float outSpec = outLineW*2.0f+textOutSpac+maxTextL;
 
         mRadius = (Math.min(mTotalWidth,mTotalHeight))/2 - outSpec;
         Log.i(TAG, "饼状图宽高："+mTotalWidth+" * "+mTotalHeight+" ，半径："+mRadius);
@@ -111,9 +114,57 @@ public class PieChart extends View {
         mRectF.top = -mRadius;
         mRectF.right = mRadius;
         mRectF.bottom = mRadius;
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
 
         //设置原点位置
         canvas.translate(mTotalWidth/2,(mTotalHeight)/2);
+
+        if(Constant.debug){
+            //测试边界
+            mPaint.setColor(Color.YELLOW);
+            canvas.drawRect(-mRadius-outLineW*2-textOutSpac-maxTextL,
+                    -mRadius-outLineW*2-textOutSpac-maxTextL,
+                    mRadius+outLineW*2+textOutSpac+maxTextL,
+                    mRadius+outLineW*2+textOutSpac+maxTextL, mPaint);
+            //外侧字边界
+            mPaint.setColor(Color.GRAY);
+            canvas.drawRect(-mRadius-outLineW*2-textOutSpac,
+                    -mRadius-outLineW*2-textOutSpac,
+                    mRadius+outLineW*2+textOutSpac,
+                    mRadius+outLineW*2+textOutSpac, mPaint);
+            //外侧长线
+            mPaint.setColor(Color.GREEN);
+            canvas.drawRect(-mRadius-outLineW*2,
+                    -mRadius-outLineW*2,
+                    mRadius+outLineW*2,
+                    mRadius+outLineW*2, mPaint);
+            //外侧短线
+            mPaint.setColor(Color.RED);
+            canvas.drawRect(-mRadius-outLineW,
+                    -mRadius-outLineW,
+                    mRadius+outLineW,
+                    mRadius+outLineW, mPaint);
+            //外侧字
+            mPaint.setColor(Color.DKGRAY);
+            canvas.drawRect(-mRadius-textOutSpac-maxTextL,
+                    -mRadius-textOutSpac-maxTextL,
+                    mRadius+textOutSpac+maxTextL,
+                    mRadius+textOutSpac+maxTextL, mPaint);
+            //外侧字
+            mPaint.setColor(Color.CYAN);
+            canvas.drawRect(-mRadius-textOutSpac,
+                    -mRadius-textOutSpac,
+                    mRadius+textOutSpac,
+                    mRadius+textOutSpac, mPaint);
+            //外侧
+            mPaint.setColor(Color.WHITE);
+            canvas.drawRect(-mRadius, -mRadius, mRadius, mRadius, mPaint);
+        }
+
 
         //绘制饼图的每块区域
         drawPiePath(canvas);
@@ -137,7 +188,7 @@ public class PieChart extends View {
             canvas.drawLine(0,0,mRadius,0,mLinePaint);
             //绘制0%
             //文字绘制baseLine为表格高度+间距+基准
-            canvas.drawText("0%",mRadius+textOutSpac, 0 ,mTextPaint);
+            canvas.drawText("0%",mRadius+textOutSpac,textLead- textH/2,mTextPaint);
             return;
         }
 
@@ -148,9 +199,8 @@ public class PieChart extends View {
             canvas.drawArc(mRectF,0,360,true,mPaint);
 
             //文字绘制baseLine为表格高度+间距+基准
-//            float y = lineheight + Constants.S_LABLE_CHART_DIS + h;
             canvas.drawText("100%",mRadius-textInnerSpac-mTextPaint.measureText("100%")/2,
-                    0,mTextPaint);
+                    textLead- textH/2,mTextPaint);
             return;
         }
 
@@ -164,7 +214,6 @@ public class PieChart extends View {
         for(int i = 0;i<mDataList.size();i++){
             float sweepAngle = mDataList.get(i).getValue()/mTotalValue*360;//每个扇形的角度
             float valueB = mDataList.get(i).getValue()/mTotalValue*1.0f;
-            mPath.moveTo(0,0);
             mPaint.setColor(mDataList.get(i).getColor());
             //*******直接绘制扇形***********
             canvas.drawArc(mRectF,startAngle,sweepAngle,true,mPaint);
@@ -233,28 +282,32 @@ public class PieChart extends View {
 
                     if(loatoutP !=null){
                         if(lastValueB!=0 && lastValueB<1){
+                            //上一个也是在外面 ，并且很小
                             if(valueB <1){
-                                pxt = (float) ((mRadius+outLineW*1.5)* Math.cos(Math.toRadians(startAngle+sweepAngle)));
-                                pyt = (float) ((mRadius+outLineW*1.5)* Math.sin(Math.toRadians(startAngle+sweepAngle)));
-                                centerX = (float) ((mRadius+outLineW*1.5+textOutSpac)* Math.cos(Math.toRadians(startAngle+sweepAngle)));
-                                centerY = (float) ((mRadius+outLineW*1.5+textOutSpac)* Math.sin(Math.toRadians(startAngle+sweepAngle)));
+                                //这个也小
+                                pxt = (float) ((mRadius+outLineW*2)* Math.cos(Math.toRadians(startAngle+sweepAngle)));
+                                pyt = (float) ((mRadius+outLineW*2)* Math.sin(Math.toRadians(startAngle+sweepAngle)));
+                                centerX = (float) ((mRadius+outLineW*2+textOutSpac+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle)));
+                                centerY = (float) ((mRadius+outLineW*2+textOutSpac+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle)));
                             }else{
-                                pxt = (float) ((mRadius+outLineW/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
-                                pyt = (float) ((mRadius+outLineW/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
-                                centerX = (float) ((mRadius+outLineW/2+textOutSpac)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
-                                centerY = (float) ((mRadius+outLineW/2+textOutSpac)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                                //这个大一点
+                                pxt = (float) ((mRadius+outLineW)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                                pyt = (float) ((mRadius+outLineW)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                                centerX = (float) ((mRadius+outLineW+textOutSpac+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                                centerY = (float) ((mRadius+outLineW+textOutSpac+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
                             }
                         }else{
-                            pxt = (float) ((mRadius+outLineW/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
-                            pyt = (float) ((mRadius+outLineW/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
-                            centerX = (float) ((mRadius+outLineW/2+textOutSpac)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
-                            centerY = (float) ((mRadius+outLineW/2+textOutSpac)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                            //上一个比较大
+                            pxt = (float) ((mRadius+outLineW)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                            pyt = (float) ((mRadius+outLineW)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                            centerX = (float) ((mRadius+outLineW+textOutSpac+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                            centerY = (float) ((mRadius+outLineW+textOutSpac+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
                         }
                     }else{
-                        pxt = (float) ((mRadius+outLineW/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
-                        pyt = (float) ((mRadius+outLineW/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
-                        centerX = (float) ((mRadius+outLineW/2+textOutSpac)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
-                        centerY = (float) ((mRadius+outLineW/2+textOutSpac)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                        pxt = (float) ((mRadius+outLineW)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                        pyt = (float) ((mRadius+outLineW)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                        centerX = (float) ((mRadius+outLineW+textOutSpac+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                        centerY = (float) ((mRadius+outLineW+textOutSpac+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
                     }
 
 //                Log.w(TAG, "中点："+centerX+"*"+centerY);

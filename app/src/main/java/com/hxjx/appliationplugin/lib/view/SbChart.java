@@ -33,7 +33,9 @@ public class SbChart extends View {
     private float margin;
     private float rect;
     private int lineNum;
-    private float lineMargin = 15;
+    private float lineMargin;
+    private final float lineMarginInit = DensityUtil.dip2px(getContext(), 15);
+
     private int oneLineCount = 15;
     private float oneHeight;
     private float textTop;
@@ -62,7 +64,6 @@ public class SbChart extends View {
         minMargin = DensityUtil.dip2px(context, minMargin);
         maxRect = DensityUtil.dip2px(context, maxRect);
         minRect = DensityUtil.dip2px(context, minRect);
-        lineMargin = DensityUtil.dip2px(context, lineMargin);
         textSize = maxTextSize;
         margin = maxRect;
         rect = maxRect;
@@ -97,7 +98,7 @@ public class SbChart extends View {
         textSize = minTextSize+(maxTextSize-minTextSize)*scale;
         margin = minMargin+(maxMargin-minMargin)*scale;
         rect = minRect+(maxRect-minRect)*scale;
-        lineMargin = lineMargin*scale;
+        lineMargin = lineMarginInit*scale;
         Log.i(TAG, "缩放后字体："+textSize+" 间距："+margin+"  方块："+rect);
         if(mDataList==null || mDataList.size()<=0){
             setMeasuredDimension(10, 10);
@@ -118,7 +119,7 @@ public class SbChart extends View {
                 maxW2 = maxW2>l?maxW2:l;
             }
         }
-
+        Log.e(TAG, "lineMargin="+lineMargin+"  rect="+rect+"   margin="+margin+"  maxW1="+maxW1);
         float width = lineMargin*2+
                 rect + margin + maxW1 +
                 (lineNum==2?(lineMargin+rect + margin + maxW2):0);

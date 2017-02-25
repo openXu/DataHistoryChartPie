@@ -2,11 +2,13 @@ package com.hxjx.appliationplugin;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.hxjx.appliationplugin.lib.bean.PieDataEntity;
 import com.hxjx.appliationplugin.lib.util.Constant;
@@ -38,15 +40,6 @@ public class PluginViewStyleWaterBlue extends Activity {
         sbChart = (SbChart) findViewById(R.id.sbChart);
 
         pieDatas = getIntent().getParcelableArrayListExtra("pieDatas");
-/*
-
-        ll_child3.setSizeChangeListenr(new MyLineLayout.SizeChangeListenr() {
-            @Override
-            public void onSizeChanged(int w, int h, int oldw, int oldh) {
-                scaleContent(w, h);
-            }
-        });
-*/
 
         selectIndex = getIntent().getIntExtra("selectIndex", 42);
 
@@ -131,6 +124,36 @@ public class PluginViewStyleWaterBlue extends Activity {
     private void Set_ChangeView_layoutShowTestDataFresh(){
         sbChart.setDataList(pieDatas);
         pieChart.setDataList(pieDatas);
+    }
+
+    /*插件最大尺寸	1920*1080
+                          插件最小尺寸	320*183*/
+    public static int MAX_HEIGHT = 1920;
+    public static int MAX_WIDTH = 1080;
+    public static int MIN_HEIGHT = 182;
+    public static int MIN_WIDTH = 320;
+
+    /**
+     * 屏幕旋转时调用此方法
+     */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        //newConfig.orientation获得当前屏幕状态是横向或者竖向
+        //Configuration.ORIENTATION_PORTRAIT 表示竖向
+        //Configuration.ORIENTATION_LANDSCAPE 表示横屏
+        if(newConfig.orientation==Configuration.ORIENTATION_PORTRAIT){
+            if(Constant.debug)
+                Toast.makeText(this, "树了",Toast.LENGTH_SHORT).show();
+            MAX_HEIGHT = 1920;
+            MAX_WIDTH = 1080;
+        }
+        if(newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE){
+            if(Constant.debug)
+                Toast.makeText(this, "横了",Toast.LENGTH_SHORT).show();
+            MAX_HEIGHT = 1080;
+            MAX_WIDTH = 1920;
+        }
     }
 
 

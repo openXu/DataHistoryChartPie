@@ -97,8 +97,12 @@ public class CustomLayout extends ViewGroup {
         pointPieStart = new PointF(0, titleEndY+TITLE_SPACE);
         pointPieEnd = new PointF(pieW, titleEndY+TITLE_SPACE+pieH);
 
-        pointSbStart = new PointF(pieW, titleEndY+TITLE_SPACE+(pieH/2-sbH/2));
+//        pointSbStart = new PointF(pieW, titleEndY+TITLE_SPACE+(pieH/2-sbH/2));
+//        pointSbEnd = new PointF(allWidth, titleEndY+TITLE_SPACE+pieH - (pieH/2-sbH/2));
+
+        pointSbStart = new PointF(pieW, (titleEndY+TITLE_SPACE+(pieH/2-sbH/2))<titleEndY?titleEndY:titleEndY+TITLE_SPACE+(pieH/2-sbH/2));
         pointSbEnd = new PointF(allWidth, titleEndY+TITLE_SPACE+pieH - (pieH/2-sbH/2));
+
         Log.v(TAG, "容器获得建议宽高："+allWidth+"*"+allHight);
         Log.v(TAG, "饼状图宽高："+pieW+"*"+pieH);
         Log.v(TAG, "色标宽高："+sbW+"*"+sbH);

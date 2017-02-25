@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.hxjx.appliationplugin">
-
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -15,12 +15,15 @@
             </intent-filter>
         </activity>
         <activity android:name=".OutsourceViewSetting"
-            android:windowSoftInputMode="adjustPan|stateHidden"/>
+            android:windowSoftInputMode="adjustPan|stateHidden"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
 
         <activity android:name=".PluginViewStyleWaterBlue1"
-            android:windowSoftInputMode="adjustPan|stateHidden"/>
+            android:windowSoftInputMode="adjustPan|stateHidden"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
         <activity android:name=".PluginViewStyleWaterBlue"
-            android:windowSoftInputMode="adjustPan|stateHidden"/>
+            android:windowSoftInputMode="adjustPan|stateHidden"
+            android:configChanges="keyboardHidden|orientation|screenSize"/>
     </application>
 
 </manifest>

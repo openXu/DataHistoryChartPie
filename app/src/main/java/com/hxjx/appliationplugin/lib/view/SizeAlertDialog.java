@@ -10,6 +10,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.hxjx.appliationplugin.PluginViewStyleWaterBlue;
 import com.hxjx.appliationplugin.R;
 
 /**
@@ -36,20 +37,19 @@ public class SizeAlertDialog {
                 boolean ok = true;
                 int intW = -1;
                 int intH = -1;
-                 /*插件最大尺寸	1920*1080
-                      插件最小尺寸	320*183*/
+
                 try{
                     intW = Integer.parseInt(strW);
-                    intW = intW>1920?1920:intW;
-                    intW = intW<320?320:intW;
+                    intW = intW> PluginViewStyleWaterBlue.MAX_WIDTH?PluginViewStyleWaterBlue.MAX_WIDTH:intW;
+                    intW = intW<PluginViewStyleWaterBlue.MIN_WIDTH?PluginViewStyleWaterBlue.MIN_WIDTH:intW;
                 }catch (Exception e){
                     e.printStackTrace();
                     ok = false;
                 }
                 try{
                     intH = Integer.parseInt(strH);
-                    intH = intH>1080?1080:intH;
-                    intH = intH<183?183:intH;
+                    intH = intH>PluginViewStyleWaterBlue.MAX_HEIGHT?PluginViewStyleWaterBlue.MAX_HEIGHT:intH;
+                    intH = intH<PluginViewStyleWaterBlue.MIN_HEIGHT?PluginViewStyleWaterBlue.MIN_HEIGHT:intH;
                 }catch (Exception e){
                     ok = false;
                 }

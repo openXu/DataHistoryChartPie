@@ -9,6 +9,8 @@ import android.graphics.Color;
  */
 public class Constant {
 
+    public static boolean debug = false;
+
     public static int[] CHARTCOLOR = new int[]{
             Color.argb(255,192, 0, 0), //第一条数据颜色	深红      192	0	0
             Color.argb(255,124, 20, 94), //第二条数据颜色	紫红色	 124	20	94
