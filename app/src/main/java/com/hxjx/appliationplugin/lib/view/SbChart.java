@@ -23,18 +23,20 @@ public class SbChart extends View {
     private final int MAX_HEIGHT = 800;
 
     private float maxTextSize = 14;
-    private float minTextSize = 7;
-    private float maxMargin = 8;
-    private float minMargin = 3;
+    private float minTextSize = 3;
+    private float maxMargin = 5;
+    private float minMargin = 1;
     private float maxRect = 20;
-    private float minRect = 6;
+    private float minRect = 3;
 
     private float textSize;
     private float margin;
     private float rect;
     private int lineNum;
+    private float panding;
     private float lineMargin;
     private final float lineMarginInit = DensityUtil.dip2px(getContext(), 15);
+    private final float pandingInit = DensityUtil.dip2px(getContext(), 20);
 
     private int oneLineCount = 15;
     private float oneHeight;
@@ -98,6 +100,7 @@ public class SbChart extends View {
         textSize = minTextSize+(maxTextSize-minTextSize)*scale;
         margin = minMargin+(maxMargin-minMargin)*scale;
         rect = minRect+(maxRect-minRect)*scale;
+        panding = pandingInit*scale;
         lineMargin = lineMarginInit*scale;
         Log.i(TAG, "缩放后字体："+textSize+" 间距："+margin+"  方块："+rect);
         if(mDataList==null || mDataList.size()<=0){
@@ -120,7 +123,7 @@ public class SbChart extends View {
             }
         }
         Log.e(TAG, "lineMargin="+lineMargin+"  rect="+rect+"   margin="+margin+"  maxW1="+maxW1);
-        float width = lineMargin*2+
+        float width = panding*2+
                 rect + margin + maxW1 +
                 (lineNum==2?(lineMargin+rect + margin + maxW2):0);
         float h = GlFontUtil.getFontHeight(mTextPaint);
@@ -128,7 +131,7 @@ public class SbChart extends View {
         textTop = (rect-h)/2.0f;
         textTop = textTop<0?(textTop*-1):textTop;
         float height = (oneHeight + margin)*(lineNum==1?mDataList.size():oneLineCount)-margin;
-        pointStart = new PointF(lineMargin+rect + margin + maxW1+ lineMargin, 0);
+        pointStart = new PointF(panding+rect + margin + maxW1+ lineMargin, 0);
         Log.i(TAG, "色标宽高："+width+"*"+height);
         setMeasuredDimension((int)width, (int)height);
 
@@ -152,10 +155,10 @@ public class SbChart extends View {
             mPaint.setColor(entry.getColor());
             if(i<oneLineCount){
                 //第一列
-                canvas.drawRect(lineMargin, (oneHeight+margin)*i, lineMargin+rect,
+                canvas.drawRect(panding, (oneHeight+margin)*i, panding+rect,
                         (oneHeight+margin)*i+rect, mPaint);
                 //文字绘制baseLine为表格高度+间距+基准
-                canvas.drawText(entry.getName(),lineMargin + rect + margin,
+                canvas.drawText(entry.getName(),panding + rect + margin,
                         (oneHeight+margin)*i+textTop+GlFontUtil.getFontLeading(mTextPaint),mTextPaint);
             }else{
                 //第二列

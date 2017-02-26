@@ -33,7 +33,7 @@ public class SizeAlertDialog {
             public void onClick(View v) {
                 String strW = et_w.getText().toString().trim();
                 String strH = et_h.getText().toString().trim();
-                Log.i("openXu", "设置宽高："+strW+" * "+strH);
+
                 boolean ok = true;
                 int intW = -1;
                 int intH = -1;
@@ -53,6 +53,7 @@ public class SizeAlertDialog {
                 }catch (Exception e){
                     ok = false;
                 }
+                Log.i("openXu", "设置宽高："+intW+" * "+intH);
                 InputMethodManager imm = (InputMethodManager)
                         activity.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.showSoftInput(et_w,InputMethodManager.SHOW_FORCED);
