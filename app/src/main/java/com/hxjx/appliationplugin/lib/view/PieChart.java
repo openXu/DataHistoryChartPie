@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.AttributeSet;
@@ -20,8 +19,6 @@ import com.hxjx.appliationplugin.lib.util.GlFontUtil;
 
 import java.util.ArrayList;
 
-import javax.microedition.khronos.opengles.GL;
-
 public class PieChart extends View {
 
     private String TAG = "PieChart";
@@ -29,11 +26,18 @@ public class PieChart extends View {
     private int mTotalWidth, mTotalHeight;
     /**绘制区域的半径*/
     private float mRadius;
-    private float outLineW = 10;        //外侧线长
-    private float textOutSpac = 2;     //外侧字与线得距离
+    private final int MAX_HEIGHT = 800;
+    private float maxTextSize = 14;
+    private float minTextSize = 7;
+    private float maxOutLineW = 10;
+    private float minOutLineW = 4;
+
+    private float textSize;
+    private float outLineW;             //外侧线长
+    private float textOutSpac = 2;      //外侧字与线得距离
     private float textInnerSpac = 15;   //内侧字与边得距离
     private float maxTextL;             //最长得字长度
-    private float textLead, textH;             //最长得字长度
+    private float textLead, textH;      //最长得字长度
 
 
     private Paint mPaint, mLinePaint,mTextPaint;
@@ -82,7 +86,7 @@ public class PieChart extends View {
         mLinePaint = new Paint();
         mLinePaint.setAntiAlias(true);
         mLinePaint.setStyle(Paint.Style.FILL);
-        mLinePaint.setStrokeWidth(2);
+        mLinePaint.setStrokeWidth(1);
         mLinePaint.setColor(Color.BLACK);
 
         mTextPaint = new Paint();
@@ -90,26 +94,48 @@ public class PieChart extends View {
         mTextPaint.setStyle(Paint.Style.FILL);
         mTextPaint.setTextSize(13);
 
-        outLineW = DensityUtil.dip2px(context, outLineW);
+        maxTextSize = DensityUtil.dip2px(context, maxTextSize);
+        minTextSize = DensityUtil.dip2px(context, minTextSize);
+        maxOutLineW = DensityUtil.dip2px(context, maxOutLineW);
+        minOutLineW = DensityUtil.dip2px(context, minOutLineW);
+
         textOutSpac = DensityUtil.dip2px(context, textOutSpac);
         textInnerSpac = DensityUtil.dip2px(context, textInnerSpac);
-        maxTextL = GlFontUtil.getFontlength(mTextPaint, "00.0%");
-        textLead = GlFontUtil.getFontLeading(mTextPaint);
-        textH = GlFontUtil.getFontHeight(mTextPaint);
     }
 
+/*
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }*/
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        mTotalWidth = w - getPaddingLeft() - getPaddingRight();
-        mTotalHeight = h - getPaddingTop() - getPaddingBottom();
+        if(w<=0 || h<=0)
+            return;
+
+        mTotalWidth = w;
+        mTotalHeight = h;
+
+        int min = mTotalWidth>mTotalHeight?mTotalHeight:mTotalWidth;
+        float scale = (min*1.0f)/(MAX_HEIGHT*1.0f);
+
+
+        textSize = minTextSize+(maxTextSize-minTextSize)*scale;
+        outLineW = minOutLineW+(maxOutLineW-minOutLineW)*scale;
+        mTextPaint.setTextSize(textSize);
+        maxTextL = GlFontUtil.getFontlength(mTextPaint, "0.0%");
+        textLead = GlFontUtil.getFontLeading(mTextPaint);
+        textH = GlFontUtil.getFontHeight(mTextPaint);
 
         //外围空间，标记占比
         float outSpec = outLineW*2.0f+textOutSpac+maxTextL;
 
         mRadius = (Math.min(mTotalWidth,mTotalHeight))/2 - outSpec;
-        Log.i(TAG, "饼状图宽高："+mTotalWidth+" * "+mTotalHeight+" ，半径："+mRadius);
+        Log.d(TAG, "饼状图宽高："+mTotalWidth+" * "+mTotalHeight+" ，半径："+mRadius);
+        Log.d(TAG, "最大高度为："+MAX_HEIGHT+" 当前宽高最小值："+min+"  缩放值："+scale);
+        Log.d(TAG, "字体："+textSize+" outLineW："+outLineW);
         mRectF.left = -mRadius;
         mRectF.top = -mRadius;
         mRectF.right = mRadius;
@@ -169,6 +195,7 @@ public class PieChart extends View {
         //绘制饼图的每块区域
         drawPiePath(canvas);
     }
+
 
     /**
      * 绘制饼图的每块区域 和文本
@@ -263,8 +290,8 @@ public class PieChart extends View {
 
                 if((i == mDataList.size()-1 && firstIsOut)){
                     //最后一个避免遮盖
-                    centerX = (float) ((mRadius+textOutSpac)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
-                    centerY = (float) ((mRadius+textOutSpac)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                    centerX = (float) ((mRadius+textOutSpac+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                    centerY = (float) ((mRadius+textOutSpac+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
 
                     centerX = centerX-textW/2;
                     centerY = centerY-textH/2 + lineH;
