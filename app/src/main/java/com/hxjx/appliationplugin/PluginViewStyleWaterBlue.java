@@ -130,8 +130,8 @@ public class PluginViewStyleWaterBlue extends Activity {
                           插件最小尺寸	320*183*/
     public static int MAX_HEIGHT = 1920;
     public static int MAX_WIDTH = 1080;
-    public static int MIN_HEIGHT = 182;
-    public static int MIN_WIDTH = 320;
+    public static int MIN_HEIGHT = 250;
+    public static int MIN_WIDTH = 440;
 
     /**
      * 屏幕旋转时调用此方法

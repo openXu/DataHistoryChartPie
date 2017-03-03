@@ -28,14 +28,14 @@ public class PieChart extends View {
     private float mRadius;
     private final int MAX_HEIGHT = 800;
     private float maxTextSize = 14;
-    private float minTextSize = 7;
-    private float maxOutLineW = 10;
+    private float minTextSize = 6;
+    private float maxOutLineW = 8;
     private float minOutLineW = 4;
 
     private float textSize;
     private float outLineW;             //外侧线长
-    private float textOutSpac = 2;      //外侧字与线得距离
-    private float textInnerSpac = 15;   //内侧字与边得距离
+    private float textOutSpac = 0.5f;      //外侧字与线得距离
+    private float textInnerSpac = 10;   //内侧字与边得距离
     private float maxTextL;             //最长得字长度
     private float textLead, textH;      //最长得字长度
 
@@ -86,7 +86,7 @@ public class PieChart extends View {
         mLinePaint = new Paint();
         mLinePaint.setAntiAlias(true);
         mLinePaint.setStyle(Paint.Style.FILL);
-        mLinePaint.setStrokeWidth(1);
+        mLinePaint.setStrokeWidth(0.5f);
         mLinePaint.setColor(Color.BLACK);
 
         mTextPaint = new Paint();
@@ -130,7 +130,7 @@ public class PieChart extends View {
         textH = GlFontUtil.getFontHeight(mTextPaint);
 
         //外围空间，标记占比
-        float outSpec = outLineW*2.0f+textOutSpac+maxTextL;
+        float outSpec = outLineW*3.0f+textOutSpac+maxTextL;
 
         mRadius = (Math.min(mTotalWidth,mTotalHeight))/2 - outSpec;
         Log.d(TAG, "饼状图宽高："+mTotalWidth+" * "+mTotalHeight+" ，半径："+mRadius);
@@ -236,7 +236,9 @@ public class PieChart extends View {
         float textH = GlFontUtil.getFontHeight(mTextPaint);  //文字高度
         float lineH = GlFontUtil.getFontLeading(mTextPaint);
         PointF loatoutP = null;   //上一个数据是否标在外 面
-        boolean firstIsOut = false;
+        int firstStatus = 0;
+
+        int lastStatus = 0;   //0：内侧   1：外侧   2：外侧1   3：外侧2   4：外侧3
         float lastValueB = 0;
         for(int i = 0;i<mDataList.size();i++){
             float sweepAngle = mDataList.get(i).getValue()/mTotalValue*360;//每个扇形的角度
@@ -256,7 +258,8 @@ public class PieChart extends View {
             float pyt = (float) ((mRadius-textInnerSpac)* Math.sin(Math.toRadians(startAngle+sweepAngle)));
             double dis = Math.sqrt((pyt-pys)*(pyt-pys) + (pxt-pxs)*(pxt-pxs));
             float centerX, centerY;
-            if(dis > textW){
+            if(dis >= textW){
+                lastStatus = 0;
                 loatoutP = null;
                 //写在里面
                 centerX = (float) ((mRadius-textInnerSpac)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
@@ -284,11 +287,30 @@ public class PieChart extends View {
                 }
 
             }else{
+                //0：内侧   1：外侧   2：外侧1   3：外侧2   4：外侧3
+                switch (lastStatus){
+                    case 0:
+                        lastStatus = 4;
+                        break;
+                    case 1:
+                        lastStatus = 3;
+                        break;
+                    case 2:
+                        lastStatus = 4;
+                        break;
+                    case 3:
+                        lastStatus = 1;
+                        break;
+                    case 4:
+                        lastStatus = 1;
+                        break;
+                }
                 if(i == 0){
-                    firstIsOut = true;
+                    firstStatus = lastStatus;
                 }
 
-                if((i == mDataList.size()-1 && firstIsOut)){
+
+                if((i == mDataList.size()-1 && firstStatus!=0)){
                     //最后一个避免遮盖
                     centerX = (float) ((mRadius+textOutSpac+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
                     centerY = (float) ((mRadius+textOutSpac+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
@@ -306,8 +328,43 @@ public class PieChart extends View {
                     //确定直线的起始和结束的点的位置
                     pxs = (float) (mRadius* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
                     pys = (float) (mRadius* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                    //0：内侧   1：外侧   2：外侧1   3：外侧2
+                    centerX = 0;
+                    centerY = 0;
+                    switch (lastStatus){
+                        case 1:
+                            if(lastValueB!=0 && (lastValueB*100)<1){
+                                centerX = (float) ((mRadius+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle)));
+                                centerY = (float) ((mRadius+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle)));
+                            }else{
+                                centerX = (float) ((mRadius+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                                centerY = (float) ((mRadius+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                            }
+                            break;
+                        case 2:
+                            pxt = (float) ((mRadius+outLineW)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                            pyt = (float) ((mRadius+outLineW)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                            centerX = (float) ((mRadius+outLineW+textOutSpac+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                            centerY = (float) ((mRadius+outLineW+textOutSpac+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                            canvas.drawLine(pxs,pys,pxt,pyt,mLinePaint);
+                            break;
+                        case 3:
+                            pxt = (float) ((mRadius+outLineW*2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                            pyt = (float) ((mRadius+outLineW*2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                            centerX = (float) ((mRadius+outLineW*2+textOutSpac+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                            centerY = (float) ((mRadius+outLineW*2+textOutSpac+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                            canvas.drawLine(pxs,pys,pxt,pyt,mLinePaint);
+                            break;
+                        case 4:
+                            pxt = (float) ((mRadius+outLineW*3)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                            pyt = (float) ((mRadius+outLineW*3)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                            centerX = (float) ((mRadius+outLineW*3+textOutSpac+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
+                            centerY = (float) ((mRadius+outLineW*3+textOutSpac+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
+                            canvas.drawLine(pxs,pys,pxt,pyt,mLinePaint);
+                            break;
+                    }
 
-                    if(loatoutP !=null){
+/*                    if(loatoutP !=null){
                         if(lastValueB!=0 && lastValueB<1){
                             //上一个也是在外面 ，并且很小
                             if(valueB <1){
@@ -335,7 +392,7 @@ public class PieChart extends View {
                         pyt = (float) ((mRadius+outLineW)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
                         centerX = (float) ((mRadius+outLineW+textOutSpac+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle/2)));
                         centerY = (float) ((mRadius+outLineW+textOutSpac+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle/2)));
-                    }
+                    }*/
 
 //                Log.w(TAG, "中点："+centerX+"*"+centerY);
                     centerX = centerX-textW/2;
@@ -345,7 +402,7 @@ public class PieChart extends View {
                     startAngle += sweepAngle;
 
                     //绘制线和文本
-                    canvas.drawLine(pxs,pys,pxt,pyt,mLinePaint);
+
 //                Log.w(TAG, "角度："+startAngle+"   startAngle % 360.0="+startAngle % 360.0);
                     if(startAngle % 360.0 < 70.0){
 //                    Log.e(TAG, resToRound+"%"+"正常");
