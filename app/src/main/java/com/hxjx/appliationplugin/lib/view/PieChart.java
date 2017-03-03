@@ -334,6 +334,7 @@ public class PieChart extends View {
                     switch (lastStatus){
                         case 1:
                             if(lastValueB!=0 && (lastValueB*100)<1){
+                                //如果上一个占比小于1%,说明上一个字体会被本次遮挡，让本次字体稍微便宜（通过角度）
                                 centerX = (float) ((mRadius+maxTextL/2)* Math.cos(Math.toRadians(startAngle+sweepAngle)));
                                 centerY = (float) ((mRadius+maxTextL/2)* Math.sin(Math.toRadians(startAngle+sweepAngle)));
                             }else{
